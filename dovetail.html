@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>주먹장(Dovetail) 템플릿 생성기</title>
+<style>
+:root{
+  --bg:#1b1f24;
+  --panel:#22272e;
+  --line:#3a4048;
+  --paper:#f4f2ea;
+  --ink:#1b1f24;
+  --accent:#e8622c;   /* laser-orange, cut lines */
+  --accent2:#5fb8c9;  /* blueprint cyan, reference lines */
+  --warn:#f2c14e;
+  --text:#dfe3e8;
+  --sub:#8b939c;
+  --mono: "SFMono-Regular","Consolas","Liberation Mono",monospace;
+  --sans: -apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+.wrap{display:flex;min-height:100vh;}
+.panel{
+  width:360px;flex:0 0 360px;background:var(--panel);
+  padding:20px 18px 90px;border-right:1px solid var(--line);
+  overflow-y:auto; height:100vh; position:sticky; top:0;
+}
+.panel h1{font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--sub);margin:0 0 2px;}
+.panel h1 span{color:var(--accent);}
+.panel .sub{font-size:12px;color:var(--sub);margin:0 0 20px;line-height:1.5;}
+fieldset{border:1px solid var(--line);border-radius:8px;margin:0 0 14px;padding:12px 12px 14px;}
+legend{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent2);padding:0 4px;}
+label{display:block;font-size:12.5px;color:var(--text);margin:10px 0 4px;}
+label small{color:var(--sub);font-weight:400;}
+input[type=number]{
+  width:100%;background:#171a1f;border:1px solid var(--line);color:var(--text);
+  padding:7px 8px;border-radius:6px;font-family:var(--mono);font-size:13px;
+}
+select{
+  width:100%;background:#171a1f;border:1px solid var(--line);color:var(--text);
+  padding:7px 8px;border-radius:6px;font-size:13px;
+}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.hint{font-size:11px;color:var(--sub);margin-top:4px;line-height:1.4;}
+.readout{
+  font-family:var(--mono);font-size:12px;background:#171a1f;border:1px solid var(--line);
+  border-radius:6px;padding:10px;line-height:1.6;color:var(--accent2);margin-top:6px;
+}
+.readout b{color:var(--text);}
+.warnbox{
+  font-size:12px;background:#2c2210;border:1px solid var(--warn);color:var(--warn);
+  border-radius:6px;padding:8px 10px;margin-top:8px;line-height:1.5;
+}
+.btnrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+button{
+  font-family:var(--sans);font-size:12.5px;font-weight:700;letter-spacing:.02em;
+  border:none;border-radius:6px;padding:10px 12px;cursor:pointer;flex:1 1 auto;
+  transition:transform .08s ease, filter .12s ease; color:#12151a;
+}
+button.primary{background:var(--accent);}
+button.b-svg{background:var(--accent);}
+button.b-png{background:var(--accent2);}
+button.b-dxf{background:#c9a8f0;}
+button.b-print{background:var(--text);}
+button:hover{filter:brightness(1.12);}
+button:active{transform:scale(.97);}
+button.busy{opacity:.6;pointer-events:none;}
+.status{font-size:11.5px;margin-top:6px;min-height:14px;color:var(--sub);}
+.status.ok{color:#7fd88f;}
+.status.err{color:#ff8a80;}
+.main{flex:1;padding:26px 30px;overflow:auto;}
+.toolbar{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:14px;}
+.toolbar h2{font-size:14px;color:var(--sub);font-weight:500;margin:0;}
+.toolbar h2 b{color:var(--text);}
+.stagewrap{background:#101317;border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;justify-content:center;}
+.pagebox{background:var(--paper);box-shadow:0 10px 40px rgba(0,0,0,.5);max-width:100%;position:relative;width:100%;padding-top:calc(210/297*100%);overflow:hidden;}
+.pagebox svg{display:block;position:absolute;top:0;left:0;width:100%;height:100%;}
+.pagegap{height:20px;}
+.tablewrap{margin:10px 0 4px;overflow-x:auto;}
+.coordtable{border-collapse:collapse;font-family:var(--mono);font-size:13px;width:100%;background:#171a1f;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.coordtable caption{text-align:left;font-size:11px;color:var(--sub);padding:6px 8px;background:#1c2127;}
+.coordtable th,.coordtable td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;}
+.coordtable th{color:var(--accent2);font-weight:600;text-align:right;}
+.coordtable th:first-child,.coordtable td:first-child{text-align:left;color:var(--text);}
+.coordtable tr:last-child td{border-bottom:none;}
+.coordtable td{color:var(--text);}
+.notes{margin-top:16px;font-size:12px;color:var(--sub);line-height:1.7;max-width:900px;}
+.notes b{color:var(--text);}
+.tag{display:inline-block;background:#171a1f;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;color:var(--accent2);}
+@media(max-width:900px){
+  .wrap{flex-direction:column;min-height:0;}
+  .panel{width:100%;flex:none;height:auto;position:relative;border-right:none;border-bottom:1px solid var(--line);overflow-y:visible;}
+  .main{padding:18px;overflow:visible;}
+  html,body{overflow-x:hidden;}
+}
+
+/* ---- print ---- */
+@media print{
+  @page{ size: A4 landscape; margin: 0; }
+  html,body{background:#fff;margin:0;padding:0;}
+  .panel,.toolbar,.notes{display:none !important;}
+  .wrap{display:block;}
+  .main{padding:0;margin:0;}
+  .stagewrap{display:block;background:#fff;border:none;padding:0;}
+  .pagegap{display:none;}
+  .tablewrap{display:none !important;}
+  .pagebox{background:#fff;box-shadow:none;width:297mm;height:210mm;padding-top:0;break-after:page;page-break-after:always;}
+  .pagebox svg{width:297mm;height:210mm;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="panel">
+    <h1>주먹장 <span>DOVETAIL</span> 생성기</h1>
+    <p class="sub">치수를 입력하면 우측 미리보기가 즉시 갱신됩니다. 값을 충분히 확인한 뒤 하단의 파일로 저장하세요.</p>
+    <p class="sub" style="opacity:.5;margin-top:-14px;">build 2026-07-02-v9</p>
+
+    <fieldset>
+      <legend>판재</legend>
+      <label>판재 두께 T (mm)<br><small>= 이빨(톱니) 길이의 기준값</small></label>
+      <input type="number" id="T" value="18" min="1" step="0.1">
+
+      <label>전체 폭 W (mm)<br><small>주먹장이 배치되는 이음 전체 길이</small></label>
+      <input type="number" id="W" value="150" min="10" step="0.5">
+    </fieldset>
+
+    <fieldset>
+      <legend>주먹장 형태</legend>
+      <label>기울기 (slope)</label>
+      <select id="slopeSel">
+        <option value="0.5">1 / 2</option>
+        <option value="0.25">1 / 4</option>
+        <option value="0.125" selected>1 / 8</option>
+        <option value="0.0625">1 / 16</option>
+        <option value="custom">직접 입력…</option>
+      </select>
+      <input type="number" id="slopeCustom" placeholder="예: 0.1667 (=1/6)" step="0.001" style="margin-top:6px;display:none;">
+
+      <div class="row2">
+        <div>
+          <label>톱니 수 n<br><small>홀수 권장</small></label>
+          <input type="number" id="n" value="5" min="1" step="1">
+        </div>
+        <div>
+          <label>톱니 길이 L<br><small>비율×T, 또는 직접값</small></label>
+          <select id="Lratio">
+            <option value="1" selected>1 × T</option>
+            <option value="0.75">3/4 × T</option>
+            <option value="0.6667">2/3 × T</option>
+            <option value="0.5">1/2 × T</option>
+            <option value="0.3333">1/3 × T</option>
+            <option value="custom">직접 입력…</option>
+          </select>
+        </div>
+      </div>
+      <input type="number" id="Lcustom" placeholder="L 직접 입력 (mm)" step="0.1" style="margin-top:6px;display:none;">
+    </fieldset>
+
+    <fieldset>
+      <legend>절삭 여유 (Kerf offset)</legend>
+      <label>수컷은 이 값만큼 작게, 암컷은 이 값만큼 크게 (한 변 기준, mm)</label>
+      <select id="offset">
+        <option>0</option><option>0.1</option><option>0.2</option><option>0.3</option>
+        <option>0.4</option><option selected>0.5</option><option>0.6</option><option>0.7</option>
+        <option>0.8</option><option>0.9</option><option>1.0</option>
+      </select>
+      <p class="hint">톱질/레이저 커팅 시 날 두께(kerf)를 보정해 헐겁거나 뻑뻑하지 않게 맞추기 위한 여유입니다.</p>
+    </fieldset>
+
+    <div id="warnings"></div>
+    <div class="readout" id="readout"></div>
+
+    <div class="btnrow" style="margin-top:16px;">
+      <button class="b-print" id="btnPrint">🖨 바로 인쇄</button>
+    </div>
+    <div class="btnrow">
+      <button class="b-svg" id="btnSvg">SVG 저장</button>
+      <button class="b-png" id="btnPng">PNG 저장</button>
+      <button class="b-dxf" id="btnDxf">DXF 저장</button>
+    </div>
+    <div class="status" id="status"></div>
+    <p class="hint" style="margin-top:6px;">모두 실측 mm 좌표로 저장됩니다. <b>인쇄 크기가 매번 달라진다면</b> 브라우저 인쇄 대화상자의 배율 설정이 <b>"페이지에 맞춤/맞춤 인쇄"</b>로 되어 있기 때문입니다 — 이건 브라우저가 매번 다시 계산하는 값이라 이 페이지에서 강제로 고정할 수 없습니다. 반드시 <b>"기본값/100%/실제 크기"</b>로 직접 바꿔주세요(용지: A4 가로, 여백: 없음). 그래도 안 맞으면 SVG로 저장한 뒤 그 파일을 직접 열어(또는 Inkscape 등에서) 인쇄해 보세요 — 웹앱을 거치지 않아 더 안정적입니다.</p>
+    <p class="hint">🖨 바로 인쇄 버튼은 브라우저의 표준 인쇄 미리보기를 그대로 띄웁니다(새 창 팝업 없음). 도면 아래 좌표표도 같은 페이지에 함께 인쇄됩니다.</p>
+  </div>
+
+  <div class="main">
+    <div class="toolbar">
+      <h2>미리보기 — 각각 별도 A4 페이지로 인쇄됩니다 <b>(297 × 210 mm × 2장)</b></h2>
+      <h2 id="pageInfo"></h2>
+    </div>
+    <div class="stagewrap"><div id="svgHostMale" class="pagebox"></div></div>
+    <div id="tableMale" class="tablewrap"></div>
+    <div class="pagegap"></div>
+    <div class="stagewrap"><div id="svgHostFemale" class="pagebox"></div></div>
+    <div id="tableFemale" class="tablewrap"></div>
+    <div class="notes">
+      <p><span class="tag">별도 페이지</span> 수컷과 암컷은 각각 <b>자기만의 A4 전체 페이지</b>를 씁니다(총 2장). 위 미리보기에 둘 다 보이지만, 저장/인쇄 시에는 두 장의 파일·페이지로 나뉩니다 — 한 페이지에 욱여넣지 않으니 배율 문제가 줄어듭니다.</p>
+      <p><span class="tag">좌표표</span> 도면 아래 화면에 보이는 좌표표는 <b>인쇄되는 각 페이지 안에도 도면 바로 아래에 함께</b> 포함됩니다 — 종이에 인쇄해서 그 좌표를 바로 옮겨 적을 수 있습니다.</p>
+      <p><span class="tag">전개 구조 (양쪽 공통)</span> 수컷·암컷 모두 <b>앞면(전개 톱니길이 L) — 끝단(두께 T) — 뒷면(전개 톱니길이 L)</b> 순서로 펼친 'ㄷ'자 전개도입니다. 청록색 실선(맨 위·맨 아래)은 어깨선(밑둥), 회색 점선 2개는 접는 선입니다 — 종이를 그 점선에서 <b>90°씩 두 번</b> 접어 판재의 앞면 → 끝면 → 뒷면에 둘러 붙이세요.</p>
+      <p><span class="tag">수컷 — 세로선 + 빗금</span> 검정 세로선은 톱니 끝단(가장 넓은 지점)을 지나 앞면부터 뒷면까지 끊기지 않고 이어지는 톱질 가이드선입니다. 빗금은 이제 <b>가이드선 바깥의 좁은 쐐기뿐 아니라, 톱니와 톱니 사이 전체 간격(중간의 곧은 구간 포함)</b>을 전부 채웁니다 — 그 영역 전체가 제거되는 부분이기 때문입니다. 빗금이 없는 부분만 남기고 잘라내면 됩니다.</p>
+      <p><span class="tag">암컷 — 소켓 전체 빗금</span> 좁은폭(어깨) → 경사 → 넓은폭(끝) 순의 계단형 실루엣 전체가 빗금 처리되어 있습니다 — 톱니 하나하나 자리에 뚫리는 소켓 구멍 전체가 제거되는 부분이라서입니다.</p>
+      <p><span class="tag">수컷 vs 암컷</span> 폭 치수만 다릅니다 — 수컷은 설계 폭보다 <b>여유값만큼 좁게</b>, 암컷은 <b>여유값만큼 넓게</b>. 톱니 길이(L)와 판재 두께(T)는 여유값의 영향을 받지 않고 그대로 유지됩니다.</p>
+      <p>회색 십자선은 정렬용 레지스트레이션 마크이며, 50mm 눈금자는 인쇄 배율이 정확한지 검증하는 용도입니다 (자로 재어 정확히 50mm가 나와야 합니다 — 페이지가 항상 실제 A4 크기로 고정되어 축소 없이 출력됩니다).</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id=>document.getElementById(id);
+
+let lastN = Math.round(parseFloat($('n').value)||5);
+function getParams(){
+  const T = parseFloat($('T').value)||1;
+  const W = parseFloat($('W').value)||10;
+  let n = Math.round(parseFloat($('n').value)||1);
+  if(n<1) n=1;
+  if(n%2===0){
+    // round toward the direction the value actually moved, so decrementing
+    // from an odd number doesn't get silently bounced back up to where it started
+    n = (n > lastN) ? n+1 : n-1;
+    if(n<1) n=1;
+    $('n').value=n;
+  }
+  lastN = n;
+
+  let slope = $('slopeSel').value;
+  slope = slope==='custom' ? (parseFloat($('slopeCustom').value)||0.125) : parseFloat(slope);
+
+  let Lr = $('Lratio').value;
+  let L = Lr==='custom' ? (parseFloat($('Lcustom').value)||T) : T*parseFloat(Lr);
+
+  const offset = parseFloat($('offset').value)||0;
+
+  return {T,W,n,slope,L,offset};
+}
+
+$('slopeSel').addEventListener('change',e=>{
+  $('slopeCustom').style.display = e.target.value==='custom' ? 'block':'none';
+  update();
+});
+$('Lratio').addEventListener('change',e=>{
+  $('Lcustom').style.display = e.target.value==='custom' ? 'block':'none';
+  update();
+});
+['T','W','n','slopeCustom','Lcustom','offset'].forEach(id=>$(id).addEventListener('input',update));
+
+// ---- geometry ----
+function buildBoundary(W,T,L,n,rootW,tipW,mode){
+  const cell = W/n;
+  const baseline = mode==='male' ? T : T+L;
+  const pts = [[0,baseline]];
+  for(let i=0;i<n;i++){
+    const c = cell*(i+0.5);
+    const rh = rootW/2, th = tipW/2;
+    if(mode==='male'){
+      pts.push([c-rh,T],[c-th,T+L],[c+th,T+L],[c+rh,T]);
+    }else{
+      pts.push([c-th,T+L],[c-rh,T],[c+rh,T],[c+th,T+L]);
+    }
+  }
+  pts.push([W,baseline]);
+  return pts;
+}
+function pathFromBoundary(pts,W){
+  const rev = pts.slice().reverse();
+  let d = `M 0,0 L ${W},0 `;
+  d += rev.map(p=>`L ${p[0].toFixed(3)},${p[1].toFixed(3)}`).join(' ');
+  d += ' Z';
+  return d;
+}
+
+function computeAll(){
+  const {T,W,n,slope,L,offset} = getParams();
+  const cell = W/n;
+  const baseRoot = cell*0.5;
+  const taper = L*slope;
+
+  const maleRoot = Math.max(0.05, baseRoot - 2*offset);
+  const maleTip  = Math.max(0.05, baseRoot + 2*taper - 2*offset);
+  const femRoot  = baseRoot + 2*offset;
+  const femTip   = baseRoot + 2*taper + 2*offset;
+
+  const warnings = [];
+  if(maleTip > cell || femTip > cell){
+    warnings.push('톱니 끝단 폭이 인접 칸 폭보다 넓어 이웃 톱니와 겹칩니다. 톱니 수를 줄이거나 기울기/톱니길이를 줄이세요.');
+  }
+  if(maleRoot <= 0.1){
+    warnings.push('여유값이 너무 커서 수컷 톱니 뿌리가 거의 사라집니다. 여유값을 줄이세요.');
+  }
+  const maleHeight = 2*L + T;   // male: front taper + edge strip + back taper
+  const femaleHeight = 2*T + L; // female: narrow band + taper + wide band
+  if(W > 267 || maleHeight > 68 || femaleHeight > 68){
+    warnings.push(`도면이 A4 인쇄 가능 영역(약 267×68mm/단)을 초과합니다 (필요: W=${W}mm, 수컷 높이=${maleHeight.toFixed(1)}mm, 암컷 높이=${femaleHeight.toFixed(1)}mm). 페이지가 실측 크기를 유지한 채로 화면/인쇄에서 잘릴 수 있으니, 톱니 길이·두께·톱니수를 줄이거나 SVG/DXF로 저장해 별도 출력하세요.`);
+  }
+
+  return {T,W,n,slope,L,offset,cell,taper,baseRoot,maleRoot,maleTip,femRoot,femTip,maleHeight,femaleHeight,warnings};
+}
+
+// x-positions (root = narrow/shoulder, tip = wide) for every tooth, left & right side.
+// Identical formula for male and female — only which rootW/tipW (shrunk vs grown) differs.
+function toothGuides(W,n,rootW,tipW){
+  const cell=W/n, out=[];
+  for(let i=0;i<n;i++){
+    const c=cell*(i+0.5), rh=rootW/2, th=tipW/2;
+    out.push({ left:{root:c-rh, tip:c-th}, right:{root:c+rh, tip:c+th} });
+  }
+  return out;
+}
+
+// One region = an unfolded 'ㄷ' (U) strip: FRONT FACE taper (0→L, shoulder→tip) +
+// EDGE STRIP (L→L+T, constant tip width — the board's own thickness, no taper since
+// the pin's cross-section doesn't change through the thickness) + BACK FACE taper
+// (L+T→2L+T, tip→shoulder, mirrored). Fold the paper 90° at y=L and again at y=L+T
+// to wrap it around the actual board edge; the vertical guide lines then run
+// unbroken across both folds, and the hatch marks the waste pared away next to them.
+function maleRegionMarkup(W, L, T, n, rootW, tipW){
+  const guides = toothGuides(W,n,rootW,tipW);
+  const H = 2*L+T;
+  const foldTop=0, foldA=L, foldB=L+T, foldBottom=H;
+  const cross=(x,y)=>`<path d="M ${x-3},${y} L ${x+3},${y} M ${x},${y-3} L ${x},${y+3}" stroke="#999" stroke-width="0.2"/>`;
+
+  let s = '';
+  // hatch the WHOLE strip first, then mask out the true pin silhouette (paper-
+  // colored) so every bit of waste is hatched — including the straight middle
+  // band next to the taper, not just the thin tapered sliver
+  s += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#hatch)"/>`;
+  guides.forEach(gd=>{
+    const {root:lr,tip:lt} = gd.left, {root:rr,tip:rt} = gd.right;
+    const d = `M ${lr},0 L ${lt},${L} L ${lt},${foldB} L ${lr},${H} `+
+              `L ${rr},${H} L ${rt},${foldB} L ${rt},${L} L ${rr},0 Z`;
+    s += `<path d="${d}" fill="#f4f2ea" stroke="none"/>`;
+  });
+
+  s += `<line x1="0" y1="${foldTop}" x2="${W}" y2="${foldTop}" stroke="#5fb8c9" stroke-width="0.3"/>`;
+  s += `<line x1="0" y1="${foldA}" x2="${W}" y2="${foldA}" stroke="#999" stroke-width="0.22" stroke-dasharray="1.6,1"/>`;
+  s += `<line x1="0" y1="${foldB}" x2="${W}" y2="${foldB}" stroke="#999" stroke-width="0.22" stroke-dasharray="1.6,1"/>`;
+  s += `<line x1="0" y1="${foldBottom}" x2="${W}" y2="${foldBottom}" stroke="#5fb8c9" stroke-width="0.3"/>`;
+
+  guides.forEach(gd=>{
+    s += `<line x1="${gd.left.root}"  y1="0" x2="${gd.left.tip}"  y2="${L}" stroke="#e8622c" stroke-width="0.28"/>`;
+    s += `<line x1="${gd.right.root}" y1="0" x2="${gd.right.tip}" y2="${L}" stroke="#e8622c" stroke-width="0.28"/>`;
+    s += `<line x1="${gd.left.tip}"  y1="${L}" x2="${gd.left.tip}"  y2="${foldB}" stroke="#e8622c" stroke-width="0.28"/>`;
+    s += `<line x1="${gd.right.tip}" y1="${L}" x2="${gd.right.tip}" y2="${foldB}" stroke="#e8622c" stroke-width="0.28"/>`;
+    s += `<line x1="${gd.left.tip}"  y1="${foldB}" x2="${gd.left.root}"  y2="${H}" stroke="#e8622c" stroke-width="0.28"/>`;
+    s += `<line x1="${gd.right.tip}" y1="${foldB}" x2="${gd.right.root}" y2="${H}" stroke="#e8622c" stroke-width="0.28"/>`;
+  });
+
+  // side boundary lines (left/right edge of the paper strip)
+  s += `<line x1="0" y1="0" x2="0" y2="${H}" stroke="#333" stroke-width="0.25"/>`;
+  s += `<line x1="${W}" y1="0" x2="${W}" y2="${H}" stroke="#333" stroke-width="0.25"/>`;
+
+  s += `${cross(0,0)}${cross(W,0)}${cross(0,H)}${cross(W,H)}`;
+  return {markup:s, height:H};
+}
+
+// Female (socket) is NOT a mirrored hourglass like the pin — the whole socket is
+// removed in one go (coping-saw / chisel), so its guide is a fully-hatched
+// stepped silhouette: a narrow flat band at the root width (shoulder), a
+// tapering trapezoid (root→tip, same length L as the pin, unchanged), then a
+// wide flat band at the tip width — both flat bands the height of the board's
+// own thickness T.
+function femaleRegionMarkup(W, L, T, n, rootW, tipW){
+  const guides = toothGuides(W,n,rootW,tipW);
+  const y0=0, y1=T, y2=T+L, y3=2*T+L; // narrow band | taper | wide band
+  const H = y3;
+  const cross=(x,y)=>`<path d="M ${x-3},${y} L ${x+3},${y} M ${x},${y-3} L ${x},${y+3}" stroke="#999" stroke-width="0.2"/>`;
+
+  let s = '';
+  s += `<line x1="0" y1="${y0}" x2="${W}" y2="${y0}" stroke="#5fb8c9" stroke-width="0.3"/>`;
+  s += `<line x1="0" y1="${y1}" x2="${W}" y2="${y1}" stroke="#999" stroke-width="0.22" stroke-dasharray="1.6,1"/>`;
+  s += `<line x1="0" y1="${y2}" x2="${W}" y2="${y2}" stroke="#999" stroke-width="0.22" stroke-dasharray="1.6,1"/>`;
+  s += `<line x1="0" y1="${y3}" x2="${W}" y2="${y3}" stroke="#5fb8c9" stroke-width="0.3"/>`;
+
+  guides.forEach(gd=>{
+    const {root:lr,tip:lt} = gd.left, {root:rr,tip:rt} = gd.right;
+    // fully-hatched stepped silhouette: narrow rect (root width) -> trapezoid -> wide rect (tip width)
+    const d = `M ${lr},${y0} L ${rr},${y0} L ${rr},${y1} L ${rt},${y2} L ${rt},${y3} `+
+              `L ${lt},${y3} L ${lt},${y2} L ${lr},${y1} Z`;
+    s += `<path d="${d}" fill="url(#hatch)" stroke="#e8622c" stroke-width="0.28"/>`;
+  });
+
+  // side boundary lines (left/right edge of the paper strip)
+  s += `<line x1="0" y1="${y0}" x2="0" y2="${H}" stroke="#333" stroke-width="0.25"/>`;
+  s += `<line x1="${W}" y1="${y0}" x2="${W}" y2="${H}" stroke="#333" stroke-width="0.25"/>`;
+
+  s += `${cross(0,0)}${cross(W,0)}${cross(0,H)}${cross(W,H)}`;
+  return {markup:s, height:H};
+}
+
+function coordColumns(g){
+  // Per request: coordinates use the pure design shape (offset = 0), not the
+  // kerf-adjusted male/female widths — so both tables share the same root/tip.
+  const designRoot = g.baseRoot;
+  const designTip  = g.baseRoot + 2*g.taper;
+  const guides = toothGuides(g.W, g.n, designRoot, designTip);
+  const root = gd=>({left:gd.left.root, right:gd.right.root});
+  const tip  = gd=>({left:gd.left.tip,  right:gd.right.tip});
+
+  const maleCols = [
+    {label:`y=0.00 (어깨,앞)`, pick:root},
+    {label:`y=${g.L.toFixed(2)} (접음A)`, pick:tip},
+    {label:`y=${(g.L+g.T).toFixed(2)} (접음B)`, pick:tip},
+    {label:`y=${(2*g.L+g.T).toFixed(2)} (어깨,뒤)`, pick:root},
+  ];
+  const femCols = [
+    {label:`y=0.00 (어깨,좁음)`, pick:root},
+    {label:`y=${g.T.toFixed(2)} (접음,좁음)`, pick:root},
+    {label:`y=${(g.T+g.L).toFixed(2)} (접음,넓음)`, pick:tip},
+    {label:`y=${(2*g.T+g.L).toFixed(2)} (어깨,넓음)`, pick:tip},
+  ];
+  const caption = `왼쪽 끝(x=0)으로부터의 거리, mm — 좌:우 값 / 설계값 기준(여유값 미적용, offset=0)`;
+  return {guides, maleCols, femCols, caption};
+}
+
+// Renders the same coordinate table as an SVG grid (monospace text + thin
+// rules) so it prints together with the drawing on the same physical page.
+function svgCoordTable(x0, y0, W, guides, colSpecs, caption){
+  const nCols = colSpecs.length;
+  const firstColW = 15;
+  const colW = (W-firstColW)/nCols;
+  const rowH = 6.5, headerH = 9;
+  let s = `<text x="${x0}" y="${y0-2}" font-size="3" font-family="monospace" fill="#666">${caption}</text>`;
+  s += `<rect x="${x0}" y="${y0}" width="${W}" height="${headerH}" fill="#e4e1d6" stroke="#bbb" stroke-width="0.12"/>`;
+  s += `<text x="${x0+firstColW/2}" y="${y0+headerH/2+1.3}" font-size="3.2" font-family="monospace" fill="#333" text-anchor="middle">#</text>`;
+  colSpecs.forEach((c,i)=>{
+    const cx = x0+firstColW+colW*(i+0.5);
+    s += `<text x="${cx}" y="${y0+headerH/2+1.3}" font-size="2.9" font-family="monospace" fill="#333" text-anchor="middle">${c.label}</text>`;
+  });
+  guides.forEach((gd,ri)=>{
+    const ry = y0+headerH+ri*rowH;
+    if(ri%2===1) s += `<rect x="${x0}" y="${ry}" width="${W}" height="${rowH}" fill="#ece9dd"/>`;
+    s += `<text x="${x0+firstColW/2}" y="${ry+rowH/2+1.3}" font-size="3.6" font-family="monospace" fill="#333" text-anchor="middle">${ri+1}</text>`;
+    colSpecs.forEach((c,i)=>{
+      const v = c.pick(gd);
+      const cx = x0+firstColW+colW*(i+1)-2;
+      s += `<text x="${cx}" y="${ry+rowH/2+1.3}" font-size="4" font-family="monospace" fill="#222" text-anchor="end">${v.left.toFixed(2)} / ${v.right.toFixed(2)}</text>`;
+    });
+  });
+  const totalH = headerH + guides.length*rowH;
+  s += `<rect x="${x0}" y="${y0}" width="${W}" height="${totalH}" fill="none" stroke="#999" stroke-width="0.15"/>`;
+  for(let i=1;i<nCols;i++){
+    const lx = x0+firstColW+colW*i;
+    s += `<line x1="${lx}" y1="${y0}" x2="${lx}" y2="${y0+totalH}" stroke="#ccc" stroke-width="0.1"/>`;
+  }
+  s += `<line x1="${x0+firstColW}" y1="${y0}" x2="${x0+firstColW}" y2="${y0+totalH}" stroke="#999" stroke-width="0.12"/>`;
+  return {markup:s, height:totalH+3};
+}
+
+function pageSvg(region, title, subtitle, footer, tableBlock, topLabel, bottomLabel){
+  const pageW=297, pageH=210, marginX=15, marginTop=20;
+
+  const ruler = `
+    <g transform="translate(${marginX},${pageH-14})">
+      <line x1="0" y1="0" x2="50" y2="0" stroke="#333" stroke-width="0.3"/>
+      <line x1="0" y1="-1" x2="0" y2="1" stroke="#333" stroke-width="0.3"/>
+      <line x1="50" y1="-1" x2="50" y2="1" stroke="#333" stroke-width="0.3"/>
+      <text x="0" y="5" font-size="3" font-family="monospace" fill="#333">0</text>
+      <text x="43" y="5" font-size="3" font-family="monospace" fill="#333">50mm(검증용 — 자로 재어 정확히 50mm가 나와야 합니다)</text>
+    </g>`;
+
+  const topLabelY = marginTop - 2;   // sits right against the top of the drawing
+  const bottomLabelY = marginTop + region.height + 4.5; // sits right against the bottom
+  const tableY = marginTop + region.height + 10;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${pageW}mm" height="${pageH}mm" viewBox="0 0 ${pageW} ${pageH}">
+  <defs>
+    <pattern id="hatch" width="2.4" height="2.4" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="2.4" stroke="#5fb8c9" stroke-width="0.32"/>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="${pageW}" height="${pageH}" fill="#f4f2ea"/>
+  <text x="${marginX}" y="7.5" font-size="4.2" font-family="monospace" fill="#222" font-weight="bold">${title}</text>
+  <text x="${marginX}" y="11.8" font-size="2.4" font-family="monospace" fill="#777">${subtitle}</text>
+  <text x="${marginX+90}" y="${topLabelY}" font-size="3.4" font-family="monospace" fill="#c0392b" font-weight="bold" text-anchor="end">↑ ${topLabel}</text>
+  <g transform="translate(${marginX},${marginTop})">${region.markup}</g>
+  <text x="${marginX+90}" y="${bottomLabelY}" font-size="3.4" font-family="monospace" fill="#c0392b" font-weight="bold" text-anchor="end">↓ ${bottomLabel}</text>
+  <g transform="translate(${marginX},${tableY})">${tableBlock.markup}</g>
+  ${ruler}
+  <text x="${marginX}" y="${pageH-4}" font-size="3" font-family="monospace" fill="#555">${footer}</text>
+  </svg>`;
+}
+
+function svgMarkup(g){
+  const maleR = maleRegionMarkup(g.W, g.L, g.T, g.n, g.maleRoot, g.maleTip);
+  const femR  = femaleRegionMarkup(g.W, g.L, g.T, g.n, g.femRoot, g.femTip);
+  const footer = `T=${g.T}mm  slope=${g.slope}  n=${g.n}  W=${g.W}mm  L=${g.L.toFixed(2)}mm(불변)  offset=±${g.offset}mm(폭에만 적용)`;
+  const cols = coordColumns(g);
+  const usableW = 297 - 15*2;
+  const maleTable = svgCoordTable(0, 0, usableW, cols.guides, cols.maleCols, cols.caption);
+  const femTable  = svgCoordTable(0, 0, usableW, cols.guides, cols.femCols, cols.caption);
+  const maleSvg = pageSvg(maleR, `수컷 MALE (설계값 − ${g.offset}mm)`,
+    `세로선=톱질 가이드, 빗금=제거되는 부분, 점선=접는 선`, footer, maleTable, '윗판, 안쪽', '아랫판, 안쪽');
+  const femSvg  = pageSvg(femR, `암컷 FEMALE (설계값 + ${g.offset}mm)`,
+    `좁은폭(어깨)→경사→넓은폭(끝) 순, 빗금 전체=제거되는 소켓 부분`, footer, femTable, '안쪽판, 안쪽', '바깥판, 안쪽');
+  return {maleSvg, femSvg};
+}
+
+function coordTableHtml(caption, guides, colSpecs){
+  // colSpecs: array of {label, pick} where pick(gd) -> {left,right}
+  const head = colSpecs.map(c=>`<th>${c.label}</th>`).join('');
+  const rows = guides.map((gd,i)=>{
+    const cells = colSpecs.map(c=>{
+      const v = c.pick(gd);
+      return `<td>${v.left.toFixed(2)} / ${v.right.toFixed(2)}</td>`;
+    }).join('');
+    return `<tr><td>${i+1}</td>${cells}</tr>`;
+  }).join('');
+  return `<table class="coordtable"><caption>${caption}</caption>
+    <thead><tr><th>톱니#</th>${head}</tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+function buildCoordTables(g){
+  const cols = coordColumns(g);
+  return {
+    male: coordTableHtml('수컷·암컷 공통 좌표표 — '+cols.caption, cols.guides, cols.maleCols),
+    female: coordTableHtml('수컷·암컷 공통 좌표표 — '+cols.caption, cols.guides, cols.femCols)
+  };
+}
+
+let lastSvgMale = '', lastSvgFemale = '';
+function update(){
+  const g = computeAll();
+  const {maleSvg, femSvg} = svgMarkup(g);
+  lastSvgMale = maleSvg; lastSvgFemale = femSvg;
+  $('svgHostMale').innerHTML = maleSvg;
+  $('svgHostFemale').innerHTML = femSvg;
+  const tables = buildCoordTables(g);
+  $('tableMale').innerHTML = tables.male;
+  $('tableFemale').innerHTML = tables.female;
+  $('pageInfo').textContent = `n=${g.n}  칸폭=${g.cell.toFixed(2)}mm  테이퍼=${g.taper.toFixed(2)}mm`;
+  $('readout').innerHTML =
+    `칸 폭(cell) : <b>${g.cell.toFixed(2)} mm</b><br>`+
+    `테이퍼(편측) : <b>${g.taper.toFixed(2)} mm</b><br>`+
+    `수컷 뿌리/끝 폭 : <b>${g.maleRoot.toFixed(2)} / ${g.maleTip.toFixed(2)} mm</b><br>`+
+    `암컷 뿌리/끝 폭 : <b>${g.femRoot.toFixed(2)} / ${g.femTip.toFixed(2)} mm</b><br>`+
+    `구간 전개 높이 — 수컷(2L+T)/암컷(2T+L) : <b>${g.maleHeight.toFixed(2)} / ${g.femaleHeight.toFixed(2)} mm</b>`;
+  $('warnings').innerHTML = g.warnings.map(w=>`<div class="warnbox">⚠ ${w}</div>`).join('');
+}
+
+function setStatus(msg,cls){
+  const el=$('status');
+  el.textContent=msg;
+  el.className='status'+(cls?(' '+cls):'');
+}
+function setBusy(btn,busy){ btn.classList.toggle('busy',busy); }
+
+function download(href,filename,isDataUrl){
+  const a=document.createElement('a');
+  a.href=href; a.download=filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  if(!isDataUrl){ setTimeout(()=>URL.revokeObjectURL(href),1000); }
+}
+
+function svgToDataUri(svgStr){
+  return 'data:image/svg+xml;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
+}
+
+$('btnSvg').addEventListener('click',(e)=>{
+  try{
+    download(URL.createObjectURL(new Blob([lastSvgMale],{type:'image/svg+xml'})),'dovetail_MALE.svg',false);
+    setTimeout(()=>{
+      download(URL.createObjectURL(new Blob([lastSvgFemale],{type:'image/svg+xml'})),'dovetail_FEMALE.svg',false);
+    },300);
+    setStatus('SVG 2개 저장 완료 (MALE, FEMALE 각각 한 장)','ok');
+  }catch(err){ setStatus('SVG 저장 실패: '+err.message,'err'); }
+});
+
+function svgToPng(svgStr, filename){
+  return new Promise((resolve,reject)=>{
+    const dpi=300;
+    const wpx = Math.round(297/25.4*dpi), hpx = Math.round(210/25.4*dpi);
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        const canvas = document.createElement('canvas');
+        canvas.width=wpx; canvas.height=hpx;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,wpx,hpx);
+        ctx.drawImage(img,0,0,wpx,hpx);
+        download(canvas.toDataURL('image/png'), filename, true);
+        resolve();
+      }catch(err){ reject(err); }
+    };
+    img.onerror = ()=>reject(new Error('이미지 로드 오류'));
+    img.src = svgToDataUri(svgStr);
+  });
+}
+
+$('btnPng').addEventListener('click',(e)=>{
+  const btn=e.currentTarget; setBusy(btn,true); setStatus('PNG 변환 중… 잠시만요','');
+  svgToPng(lastSvgMale,'dovetail_MALE_300dpi.png')
+    .then(()=>svgToPng(lastSvgFemale,'dovetail_FEMALE_300dpi.png'))
+    .then(()=>{ setStatus('PNG 2개 저장 완료 (MALE, FEMALE 각각 300dpi)','ok'); setBusy(btn,false); })
+    .catch(err=>{
+      setStatus('PNG 변환 실패: '+err.message+' — SVG로 저장 후 이미지 편집기에서 내보내기를 권장합니다.','err');
+      setBusy(btn,false);
+    });
+});
+
+$('btnPrint').addEventListener('click',()=>{
+  setStatus('인쇄 대화상자에서 배율(축척) "100%" 또는 "실제 크기"를 반드시 선택하세요 — "페이지에 맞춤"이면 크기가 달라집니다. 수컷·암컷이 각각 별도 페이지로 인쇄됩니다(총 2장).','');
+  window.print();
+});
+
+$('btnDxf').addEventListener('click',(e)=>{
+ try{
+  const g = computeAll();
+  const malePts = buildBoundary(g.W,g.T,g.L,g.n,g.maleRoot,g.maleTip,'male');
+  const femPts  = buildBoundary(g.W,g.T,g.L,g.n,g.femRoot,g.femTip,'female');
+  const toClosed = (pts)=>{
+    const rev = pts.slice().reverse();
+    return [[0,0],[g.W,0]].concat(rev).concat([[0,0]]);
+  };
+  const malePoly = toClosed(malePts);
+  // DXF y-up: flip so shapes read top-down consistently; keep as-is (units already mm)
+  const femPoly = toClosed(femPts).map(p=>[p[0], p[1]+g.T+g.L+20]); // offset below male for clarity
+
+  function lwpolyline(poly, layer){
+    let s = `0\nLWPOLYLINE\n8\n${layer}\n90\n${poly.length}\n70\n1\n`;
+    poly.forEach(p=>{ s+=`10\n${p[0].toFixed(3)}\n20\n${(-p[1]).toFixed(3)}\n`; });
+    return s;
+  }
+  let dxf = '0\nSECTION\n2\nHEADER\n0\nENDSEC\n';
+  dxf += '0\nSECTION\n2\nTABLES\n0\nENDSEC\n';
+  dxf += '0\nSECTION\n2\nENTITIES\n';
+  dxf += lwpolyline(malePoly,'MALE');
+  dxf += lwpolyline(femPoly,'FEMALE');
+  dxf += '0\nENDSEC\n0\nEOF\n';
+  const url = URL.createObjectURL(new Blob([dxf],{type:'application/dxf'}));
+  download(url,'dovetail_template.dxf',false);
+  setStatus('DXF 저장 완료','ok');
+ }catch(err){ setStatus('DXF 저장 실패: '+err.message,'err'); }
+});
+
+window.addEventListener('error', function(e){
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#7a1f1f;color:#fff;'
+    +'font-family:monospace;font-size:13px;padding:12px 16px;white-space:pre-wrap;';
+  el.textContent = '⚠ 스크립트 오류로 화면이 비어 보일 수 있습니다: '
+    + (e.message||'') + '  (' + (e.filename||'') + ':' + (e.lineno||'') + ')';
+  document.body.prepend(el);
+});
+
+try{
+  update();
+}catch(err){
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#7a1f1f;color:#fff;'
+    +'font-family:monospace;font-size:13px;padding:12px 16px;white-space:pre-wrap;';
+  el.textContent = '⚠ 초기 렌더링 실패: ' + (err && err.message ? err.message : err);
+  document.body.prepend(el);
+}
+</script>
+</body>
+</html>
