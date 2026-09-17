@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protein Pathfinder User Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #111;
+            background: #f8f9fa;
+            padding: 16px;
+            font-size: 15px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #3949AB;
+            font-size: 28px;
+            margin-bottom: 8px;
+            border-bottom: 3px solid #3949AB;
+            padding-bottom: 12px;
+        }
+        
+        h2 {
+            color: #5E35B1;
+            font-size: 22px;
+            margin-top: 32px;
+            margin-bottom: 12px;
+            padding-left: 8px;
+            border-left: 4px solid #5E35B1;
+        }
+        
+        h3 {
+            color: #7E57C2;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+        
+        p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #d63384;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+        
+        .info-box {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #3949AB;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        
+        .badge-success {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .badge-danger {
+            background: #f44336;
+            color: white;
+        }
+        
+        .badge-info {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .quick-ref {
+            background: #f8f9fa;
+            border: 2px solid #3949AB;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+        
+        .version-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 32px;
+        }
+        
+        a {
+            color: #1A237E;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .link-card {
+            display: block;
+            padding: 12px 14px;
+            margin: 8px 0;
+            border: 1px solid #C5CAE9;
+            border-radius: 8px;
+            background: #F3F5FF;
+            color: #1A237E;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link-card span {
+            display: block;
+            color: #222;
+            font-weight: 400;
+            font-size: 13px;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        .contrast-note {
+            background: #111;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Protein Pathfinder User Guide</h1>
+        
+        <div class="info-box">
+            <strong>Quick Start:</strong> Enter two gene names (e.g., TP53 and EGFR) → Tap "Find Pathways" → View interaction evidence and 3D structures!
+        </div>
+
+        <h2>📖 Overview</h2>
+        <p><strong>Protein Pathfinder</strong> is a mobile application that helps researchers explore, validate, and visualize protein-protein interaction pathways. It searches for interaction pathways between two proteins using data from UniProt, STRING, PDB, and related evidence resources, and displays 3D molecular structures, phosphorylation sites, external evidence links, STRING network graphs, and validation information.</p>
+
+        <div class="success-box">
+            <strong>New in this version:</strong> Selectable STRING network types (Functional / Physical / Regulatory v12 / Regulatory v12.5), an independently rotatable dual-panel 3D viewer, and an electrostatic surface built from real CHARMM27 force-field partial charges have been added.
+        </div>
+
+        <div class="info-box">
+            <strong>What's new, at a glance:</strong>
+            <ul>
+                <li><strong>Network type selector:</strong> choose Functional, Physical, or directional Regulatory (v12 / v12.5) evidence for every pathway search and every evidence detail page.</li>
+                <li><strong>Dual-panel 3D viewer:</strong> each protein now has its own camera — rotate and zoom them independently by touching each panel.</li>
+                <li><strong>⚡ Electrostatic Surface:</strong> a red/white/blue charge-distribution surface computed on-device from real CHARMM27 force-field partial charges — not just a handful of charged residues.</li>
+            </ul>
+        </div>
+
+        <h2>🚀 Quick Start</h2>
+        
+        <h3>1. Search for Protein Interactions</h3>
+        <ol>
+            <li><strong>Enter Gene Names</strong>
+                <ul>
+                    <li>Type the first gene name (e.g., <code>TP53</code>)</li>
+                    <li>Type the second gene name (e.g., <code>EGFR</code>)</li>
+                    <li>Both fields support standard gene symbols</li>
+                </ul>
+            </li>
+            <li><strong>Choose a Network Type (optional)</strong>
+                <ul>
+                    <li>Tap the network type dropdown (default: <strong>Functional</strong>)</li>
+                    <li>Pick <strong>Physical</strong>, <strong>Regulatory (v12)</strong>, or <strong>Regulatory (v12.5)</strong> if you need a different kind of evidence — see <a href="#network-types">Network Types</a> below</li>
+                    <li>Your selection applies to the pathway search <em>and</em> to every evidence detail page you open from the results</li>
+                </ul>
+            </li>
+            <li><strong>Start Search</strong>
+                <ul>
+                    <li>Tap the <strong>"Find Pathways"</strong> button</li>
+                    <li>Wait 5-10 seconds while the app queries scientific databases</li>
+                </ul>
+            </li>
+            <li><strong>View Results</strong>
+                <ul>
+                    <li>The app displays all discovered interaction pathways</li>
+                    <li>Each pathway shows intermediate proteins (if any)</li>
+                    <li>Evidence scores indicate interaction reliability</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h2 id="network-types">🌐 Network Types: Functional, Physical, Regulatory</h2>
+        <p>STRING can return several different kinds of evidence for the same pair of proteins, depending on which <strong>network type</strong> you request. The app lets you choose one before searching, and you can change it again on any evidence detail page.</p>
+
+        <table>
+            <tr>
+                <th>Network Type</th>
+                <th>What it means</th>
+                <th>Best for</th>
+            </tr>
+            <tr>
+                <td><span class="badge badge-info">Functional</span></td>
+                <td>Broadest evidence type. Includes indirect functional association — proteins that work in the same pathway or process, even without physical contact.</td>
+                <td>General exploration, default choice</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-info">Physical</span></td>
+                <td>Restricted to evidence for direct physical binding between the two proteins (complex formation, direct contact).</td>
+                <td>Structural questions, "do these two actually touch?"</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-warning">Regulatory (v12)</span></td>
+                <td>Directional regulation (activation/inhibition) as served by the STRING v12.0 stable API.</td>
+                <td>Legacy comparison — see caveat below</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-success">Regulatory (v12.5)</span></td>
+                <td>Directional regulation with an explicit source → target arrow and activation/inhibition sign, served by STRING's v12.5 preview API.</td>
+                <td>Signaling direction — "does A activate or inhibit B?"</td>
+            </tr>
+        </table>
+
+        <div class="warning-box">
+            <strong>Technical caveat — please read if you use Regulatory mode:</strong> STRING's regular, version-pinned domain (<code>version-12-0.string-db.org</code>) accepts a regulatory request without an error, but as of this writing it silently returns ordinary functional-network data with <em>no</em> direction or activation/inhibition sign attached. The only endpoint that currently returns real directional regulatory data (source, target, and sign) is STRING's v12.5 <strong>preview</strong> API (<code>preview.string-db.org</code>). The app automatically sends regulatory (v12.5) requests to that preview endpoint. Because it is a pre-release preview, its address or response format may change once STRING officially ships v12.5 — if regulatory (v12.5) stops showing directional arrows in a future STRING release, this is the first thing to check.
+        </div>
+
+        <h3>How to tell if you got real directional data</h3>
+        <p>When STRING returns genuine directional evidence, the STRING Evidence page shows a colored arrow card above the score list:</p>
+        <ul>
+            <li><span class="badge badge-success">Green ▲</span> <strong>A → B (activation)</strong></li>
+            <li><span class="badge badge-danger">Red ▼</span> <strong>A → B (inhibition)</strong></li>
+        </ul>
+        <p>If this card does not appear, the response had no direction/sign attached — this is expected for Functional and Physical, and is the known behavior described above for Regulatory (v12).</p>
+
+        <div class="info-box">
+            <strong>Tip:</strong> Switching the network type on the STRING Evidence page re-queries STRING immediately and updates the API URL shown at the bottom of the page — useful for double-checking exactly what was requested.
+        </div>
+
+        <h2>📊 Understanding the Results</h2>
+
+        
+        <h3>Pathway Cards</h3>
+        <p>Each pathway card displays:</p>
+        <ul>
+            <li><strong>Route Description:</strong> The interaction path (e.g., "via MDM2-PIK3CA")</li>
+            <li><strong>Depth:</strong> Number of intermediate proteins</li>
+            <li><strong>Evidence:</strong> STRING database confidence score (0-100%)</li>
+        </ul>
+
+        <h3>Evidence Score Interpretation</h3>
+        <table>
+            <tr>
+                <th>Evidence Range</th>
+                <th>Meaning</th>
+                <th>Confidence Level</th>
+            </tr>
+            <tr>
+                <td><span class="badge badge-success">90-100%</span></td>
+                <td>Highest confidence</td>
+                <td>Strong experimental evidence</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-success">70-90%</span></td>
+                <td>High confidence</td>
+                <td>Multiple evidence sources</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-warning">40-70%</span></td>
+                <td>Medium confidence</td>
+                <td>Some evidence exists</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-warning">15-40%</span></td>
+                <td>Low confidence</td>
+                <td>Weak evidence</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-danger">&lt;15%</span></td>
+                <td>Very low</td>
+                <td>Minimal or no evidence</td>
+            </tr>
+        </table>
+
+        <div class="success-box">
+            <strong>Example:</strong><br>
+            <code>TP53 → MDM2 → EGFR</code><br>
+            <strong>Evidence: 85%</strong><br>
+            This means there's strong scientific evidence (85%) supporting interactions between TP53-MDM2 and MDM2-EGFR.
+        </div>
+
+        <h2>🔬 Viewing Protein Details</h2>
+        
+        <h3>Opening Protein Information</h3>
+        <ol>
+            <li><strong>Tap any protein card</strong> in the pathway</li>
+            <li>View comprehensive protein data:
+                <ul>
+                    <li><strong>UniProt ID:</strong> Official protein identifier</li>
+                    <li><strong>Gene Name:</strong> Standard gene symbol</li>
+                    <li><strong>Description:</strong> Protein function summary</li>
+                    <li><strong>Function:</strong> Detailed biological role</li>
+                    <li><strong>Location:</strong> Subcellular localization</li>
+                    <li><strong>Tissue Specificity:</strong> Where the protein is expressed</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>Phosphorylation Sites</h3>
+        <ul>
+            <li><strong>Orange cards</strong> show phosphorylation sites</li>
+            <li>Each card displays:
+                <ul>
+                    <li>Amino acid type (e.g., Ser, Thr, Tyr)</li>
+                    <li>Position in sequence</li>
+                    <li>Functional description</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>🧪 Cell Validation</h2>
+        <p><strong>Cell Validation</strong> helps you review whether a candidate pathway is biologically plausible in a selected cell context. When available, the app displays cell-related evidence for pathway proteins, including expression relevance, cell-type support, and validation notes from the integrated validation data.</p>
+
+        <h3>How to Use Cell Validation</h3>
+        <ol>
+            <li>Open a pathway result.</li>
+            <li>Tap a protein or edge in the pathway.</li>
+            <li>Select <strong>Cell Validation</strong> from the detail/evidence menu.</li>
+            <li>Review the cell-specific evidence table and validation comments.</li>
+        </ol>
+
+        <div class="info-box">
+            <strong>Interpretation:</strong> Cell validation is a supporting evidence layer. A positive cell-context match increases confidence, but it should still be interpreted together with STRING confidence, phosphorylation evidence, and biological literature.
+        </div>
+
+        <h2>🧬 PhosphoSite Validation</h2>
+        <p><strong>PhosphoSite Validation</strong> checks whether phosphorylation sites such as <code>TP53@S312</code>, <code>JUN@S63</code>, <code>BAD@S136</code>, or <code>MDM2@S288_T286</code> are supported by phosphorylation-site evidence. This is especially useful when a pathway is generated from site-aware search results.</p>
+
+        <h3>What the Validation Shows</h3>
+        <ul>
+            <li><strong>Gene and residue:</strong> Protein name and phosphorylation position.</li>
+            <li><strong>Site support:</strong> Whether the phosphorylation site is found in the validation source.</li>
+            <li><strong>Evidence type:</strong> In vivo, in vitro, curated, predicted, or database-derived evidence when available.</li>
+            <li><strong>Kinase/substrate context:</strong> Known or inferred upstream kinase information when available.</li>
+            <li><strong>Confidence note:</strong> Practical interpretation of the site evidence.</li>
+        </ul>
+
+        <div class="warning-box">
+            <strong>Important:</strong> A phosphorylation site being present does not always prove that the current pathway edge is causal. Use the PhosphoSite Validation page together with SIGNOR/OmniPath-style causal evidence, STRING confidence, and experimental literature.
+        </div>
+
+        <h2>🔗 External Evidences and Clickable Links</h2>
+        <p>The app now provides an <strong>External Evidences</strong> section for proteins and edges. When a link is shown, tap it to open the corresponding evidence page or graph. Supported resources may include UniProt, STRING, STITCH, PDB/RCSB, and other pathway or validation resources depending on the available data.</p>
+
+        <h3>Clickable Evidence Links</h3>
+        <a class="link-card" href="https://www.uniprot.org" target="_blank">UniProt<span>Protein metadata, sequence, function, subcellular location, and annotation.</span></a>
+        <a class="link-card" href="https://string-db.org" target="_blank">STRING<span>Protein interaction network and confidence evidence.</span></a>
+        <a class="link-card" href="https://stitch.embl.de" target="_blank">STITCH<span>Chemical-protein interaction and inhibitor-related evidence.</span></a>
+        <a class="link-card" href="https://www.rcsb.org" target="_blank">RCSB PDB<span>Experimentally determined 3D structures and structure metadata.</span></a>
+
+        <h3>STRING Direct Graph View</h3>
+        <p>When viewing STRING evidence, the app uses a direct STRING network image when possible. This avoids blank screens caused by interactive STRING web pages that require browser-specific scripts, session handling, or plugin-style display behavior.</p>
+        <pre>https://string-db.org/api/highres_image/network?identifiers=TP53&amp;species=9606&amp;add_white_nodes=15&amp;network_flavor=confidence</pre>
+        <p>The graph image can be viewed directly, zoomed, and compared with the current pathway. The external browser button can still be used to open the full STRING website when interactive browsing is needed.</p>
+
+        <div class="contrast-note">
+            Display note: The app uses high-contrast text and can be fixed to light mode to avoid faint text in dark/night mode.
+        </div>
+
+        <h2>🎨 3D Molecular Visualization</h2>
+
+        <h3>Viewing 3D Structures — Independent Dual-Panel Viewer</h3>
+        <ol>
+            <li><strong>Tap the 3D viewer</strong> at the bottom of the screen</li>
+            <li>The viewer shows <strong>two separate panels</strong>, each with its own camera:
+                <ul>
+                    <li><strong>Left panel (purple):</strong> First protein</li>
+                    <li><strong>Right panel (blue):</strong> Second protein</li>
+                </ul>
+            </li>
+        </ol>
+
+        <div class="info-box">
+            <strong>Why two panels?</strong> Earlier versions placed both proteins in one shared 3D scene and pushed them apart with a fixed gap. For large structures this could make the surfaces look like they were touching even when they were not. Each protein now gets its own camera, so it is always framed correctly regardless of size, and you can rotate one without disturbing the other.
+        </div>
+
+        <h3>Interacting with 3D Models</h3>
+        <ul>
+            <li><strong>Rotate:</strong> Drag with one finger — <strong>touch the left panel to rotate only the first protein, the right panel to rotate only the second</strong></li>
+            <li><strong>Zoom:</strong> Pinch gesture, independently per panel</li>
+            <li><strong>Reset View:</strong> Tap the refresh button (top toolbar) — clears both panels and reloads both proteins from scratch, including turning off any electrostatic surface</li>
+        </ul>
+
+        <h3>Showing Phosphorylation Sites</h3>
+        <ol>
+            <li>Tap the <strong>P-sites button</strong> (scatter-dot icon) in the toolbar</li>
+            <li><strong>Red spheres</strong> appear at phosphorylation sites, on whichever protein(s) have them</li>
+            <li>Button highlights when active</li>
+            <li>Tap again to hide sites</li>
+        </ol>
+
+        <h3>⚡ Electrostatic Surface (Approximate)</h3>
+        <p>Tap the <strong>lightning bolt (⚡) button</strong> to color each protein's molecular surface by approximate electric charge: <strong>red</strong> for negative, <strong>blue</strong> for positive, <strong>white</strong> for neutral. This is computed instantly on your device using real <strong>CHARMM27 force-field partial charges</strong> for every atom of the standard 20 amino acids — not just the handful of charged residues used in earlier versions — combined with a <strong>Debye-Hückel distance screening</strong> model (V = Σ qᵢ/r · e<sup>−r/λ</sup>) so nearby charges influence the surface more strongly than distant ones, similar to how ions are screened in solution.</p>
+
+        <div class="info-box">
+            <strong>What changed:</strong> Earlier versions only assigned charge to a couple of representative atoms on Asp/Glu/Lys/Arg/His (e.g. just the two oxygens of an Asp side chain). This version assigns a real partial charge — derived from the CHARMM27 protein force field, the same charge set used in serious molecular dynamics work — to essentially every heavy atom in the structure, including previously-ignored polar side chains (Ser, Thr, Asn, Gln, Tyr, Trp) and the backbone amide/carbonyl dipole. The result is a visibly smoother, more physically grounded surface.
+        </div>
+
+        <div class="warning-box">
+            <strong>Still an approximation:</strong> This mode is designed for fast, intuitive visual inspection — spotting a positively- or negatively-charged patch at a glance, using real per-atom force-field charges with a simplified distance-screening model. It is <em>not</em> a full numerical solution of the Poisson-Boltzmann equation (that would require server-side tools like APBS), so treat it as a strong qualitative guide rather than a publication-grade quantitative result.
+        </div>
+
+        <h4>Adjusting the Approximation</h4>
+        <p>When the electrostatic surface is on, a small <strong>tune (🎚) icon</strong> appears next to the lightning bolt. Tap it to open a settings sheet with four sliders:</p>
+        <table>
+            <tr>
+                <th>Parameter</th>
+                <th>What it controls</th>
+            </tr>
+            <tr>
+                <td><strong>His charge</strong></td>
+                <td>Blends histidine's side chain between its neutral and fully-protonated CHARMM27 charge sets (0 = fully neutral, 1 = fully protonated). Raise this to approximate a low-pH environment.</td>
+            </tr>
+            <tr>
+                <td><strong>Contrast (clamp)</strong></td>
+                <td>The potential value that maps to full red/blue saturation. Lower values increase visual contrast.</td>
+            </tr>
+            <tr>
+                <td><strong>Debye length</strong></td>
+                <td>How far a charge's influence spreads across the surface, in Ångströms. Lower = more localized "hot spots"; higher = broader, smoother regions.</td>
+            </tr>
+            <tr>
+                <td><strong>Visual scale</strong></td>
+                <td>An overall multiplier on the computed potential, for fine-tuning contrast.</td>
+            </tr>
+        </table>
+        <p>The status bar briefly shows the actual computed potential range for each protein (e.g. <code>ES: A[-3.2, 5.1] B[-2.8, 4.4] clamp±6.00</code>) so you can see whether your settings are saturating the surface or leaving it too faint.</p>
+
+        <div class="warning-box">
+            <strong>Note:</strong> Only proteins with available PDB structures can be visualized in 3D. Not all proteins have crystallized structures.
+        </div>
+
+        <h2>🧩 Understanding Pathways</h2>
+        
+        <h3>Direct Interactions</h3>
+        <pre>
+Protein A ──────────> Protein B
+Depth: 1
+Evidence: 95%
+        </pre>
+        <p>The proteins interact directly with very strong evidence.</p>
+
+        <h3>Indirect Interactions</h3>
+        <pre>
+Protein A ──> Intermediate ──> Protein B
+Depth: 2
+Evidence: 65%
+        </pre>
+        <p>The proteins interact through one intermediate protein. Evidence score reflects the reliability of both connections.</p>
+
+        <h3>Complex Pathways</h3>
+        <pre>
+Protein A ──> X ──> Y ──> Protein B
+Depth: 3
+Evidence: 45%
+        </pre>
+        <p>Longer pathways have lower evidence scores due to multiple intermediate steps and cumulative uncertainty.</p>
+
+        <h2>💡 Tips for Best Results</h2>
+        
+        <h3>Choosing Proteins</h3>
+        <div class="success-box">
+            <strong>✅ Good searches:</strong>
+            <ul>
+                <li>Well-studied proteins (TP53, EGFR, BRCA1, AKT1)</li>
+                <li>Human proteins only (currently supported)</li>
+                <li>Standard gene symbols (HUGO nomenclature)</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>❌ Avoid:</strong>
+            <ul>
+                <li>Protein isoform designations (TP53-alpha)</li>
+                <li>Species-specific prefixes (Hs-TP53)</li>
+                <li>Unofficial aliases</li>
+            </ul>
+        </div>
+
+        <h3>Interpreting Evidence Scores</h3>
+        <ul>
+            <li><strong>High scores (&gt;70%):</strong> Well-validated interactions, suitable for research planning</li>
+            <li><strong>Medium scores (40-70%):</strong> Plausible interactions, require experimental verification</li>
+            <li><strong>Low scores (&lt;40%):</strong> Speculative interactions, use with caution</li>
+        </ul>
+
+        <h2>🔍 Example Searches</h2>
+        
+        <h3>Cancer Research</h3>
+        <ul>
+            <li><code>TP53</code> → <code>EGFR</code></li>
+            <li><code>TP53</code> → <code>MDM2</code></li>
+            <li><code>BRCA1</code> → <code>BRCA2</code></li>
+        </ul>
+
+        <h3>Signal Transduction</h3>
+        <ul>
+            <li><code>EGFR</code> → <code>AKT1</code></li>
+            <li><code>AKT1</code> → <code>MTOR</code></li>
+            <li><code>MAPK1</code> → <code>FOS</code></li>
+        </ul>
+
+        <h3>DNA Repair</h3>
+        <ul>
+            <li><code>BRCA1</code> → <code>RAD51</code></li>
+            <li><code>TP53</code> → <code>ATM</code></li>
+        </ul>
+
+        <h2>🛠️ Troubleshooting</h2>
+        
+        <h3>"Could not identify proteins"</h3>
+        <p><strong>Cause:</strong> Gene name not found in UniProt database</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+            <li>Verify gene symbol spelling</li>
+            <li>Try alternative gene names</li>
+            <li>Ensure it's a human protein</li>
+            <li>Check official HUGO gene nomenclature</li>
+        </ul>
+
+        <h3>"No pathways found"</h3>
+        <p><strong>Cause:</strong> No known interaction pathway in databases</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+            <li>Try closely related proteins</li>
+            <li>Check if proteins are in same biological system</li>
+        </ul>
+
+        <h3>"3D viewer shows nothing"</h3>
+        <p><strong>Cause:</strong> No PDB structure available for the proteins</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+            <li>Not all proteins have crystallized 3D structures</li>
+            <li>This is normal for many proteins</li>
+            <li>Pathway information is still valid</li>
+        </ul>
+
+        <h3>"Changing the electrostatic settings sliders doesn't seem to do anything"</h3>
+        <p><strong>Cause:</strong> The default contrast (clamp) value may already be saturating most of the surface to full red/blue, or the view hasn't refreshed.</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+            <li>Check the status bar message after adjusting a slider — it shows the actual computed potential range (e.g. <code>clamp±6.00</code>) so you can confirm the update reached the viewer</li>
+            <li>Try raising the Contrast (clamp) value if the surface looks entirely saturated, or lowering it if the surface looks entirely white</li>
+            <li>Turn the electrostatic surface off and back on (⚡) to force a full recomputation</li>
+        </ul>
+
+        <h3>"Regulatory (v12) doesn't show a direction arrow"</h3>
+        <p><strong>Cause:</strong> This is expected behavior, not a bug — see the technical caveat in <a href="#network-types">Network Types</a>. STRING's stable v12.0 domain does not currently return directional data even when regulatory is requested.</p>
+        <p><strong>Solution:</strong> Switch to <strong>Regulatory (v12.5)</strong> to see real direction and activation/inhibition sign.</p>
+
+        <h3>"STRING graph opens but becomes blank after tapping"</h3>
+        <p><strong>Cause:</strong> Some STRING interactive web pages rely on browser scripts, session URLs, or plugin-style display behavior that may not render reliably inside the app.</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+            <li>Use the direct STRING graph image view inside the app.</li>
+            <li>Use the external browser button for the full STRING website.</li>
+            <li>Avoid relying on session-based <code>cgi/network?taskId=...</code> links for in-app display.</li>
+        </ul>
+
+        <h3>"Text is hard to read in night mode"</h3>
+        <p><strong>Cause:</strong> System dark mode may reduce contrast for some embedded web or evidence pages.</p>
+        <p><strong>Solution:</strong> Use the app's high-contrast/light-mode display setting when available. The updated guide and evidence pages are designed with stronger black/white contrast.</p>
+
+        <h2>📚 Data Sources</h2>
+        
+        <table>
+            <tr>
+                <th>Database</th>
+                <th>Purpose</th>
+                <th>URL</th>
+            </tr>
+            <tr>
+                <td><strong>UniProt</strong></td>
+                <td>Protein metadata, sequences, annotations</td>
+                <td><a href="https://www.uniprot.org" target="_blank">uniprot.org</a></td>
+            </tr>
+            <tr>
+                <td><strong>STRING</strong></td>
+                <td>Protein interaction evidence scores (Functional / Physical / Regulatory v12)</td>
+                <td><a href="https://string-db.org" target="_blank">string-db.org</a></td>
+            </tr>
+            <tr>
+                <td><strong>STRING v12.5 (preview)</strong></td>
+                <td>Directional regulatory evidence (source, target, activation/inhibition sign)</td>
+                <td>preview.string-db.org — pre-release, subject to change</td>
+            </tr>
+            <tr>
+                <td><strong>PDB</strong></td>
+                <td>3D molecular structures</td>
+                <td><a href="https://www.rcsb.org" target="_blank">rcsb.org</a></td>
+            </tr>
+            <tr>
+                <td><strong>STITCH</strong></td>
+                <td>Chemical-protein interaction and inhibitor-related evidence</td>
+                <td><a href="https://stitch.embl.de" target="_blank">stitch.embl.de</a></td>
+            </tr>
+            <tr>
+                <td><strong>PhosphoSite / PTM resources</strong></td>
+                <td>Phosphorylation-site validation and residue-level evidence</td>
+                <td>Available when supported by the app data source</td>
+            </tr>
+            <tr>
+                <td><strong>Cell validation data</strong></td>
+                <td>Cell-context support for pathway interpretation</td>
+                <td>Integrated validation table</td>
+            </tr>
+            <tr>
+                <td><strong>3Dmol.js</strong></td>
+                <td>3D visualization library</td>
+                <td><a href="https://3dmol.org" target="_blank">3dmol.org</a></td>
+            </tr>
+        </table>
+
+        <h2>🔐 Privacy & Data Usage</h2>
+        <ul>
+            <li><strong>No data stored:</strong> All searches are performed in real-time</li>
+            <li><strong>No personal information:</strong> App doesn't collect user data</li>
+            <li><strong>Free to use:</strong> No subscriptions or in-app purchases</li>
+            <li><strong>Academic use:</strong> Designed for research and educational purposes</li>
+        </ul>
+
+        <div class="quick-ref">
+            <h3>📋 Quick Reference Card</h3>
+            <table>
+                <tr>
+                    <th>Action</th>
+                    <th>How To</th>
+                </tr>
+                <tr>
+                    <td>Search</td>
+                    <td>Enter 2 gene names → Tap "Find Pathways"</td>
+                </tr>
+                <tr>
+                    <td>Choose Network Type</td>
+                    <td>Tap dropdown → Functional / Physical / Regulatory (v12) / Regulatory (v12.5)</td>
+                </tr>
+                <tr>
+                    <td>View Details</td>
+                    <td>Tap any protein card</td>
+                </tr>
+                <tr>
+                    <td>3D View</td>
+                    <td>Open bottom viewer panel</td>
+                </tr>
+                <tr>
+                    <td>Rotate 3D (each protein)</td>
+                    <td>Drag with finger on that protein's own panel</td>
+                </tr>
+                <tr>
+                    <td>Zoom 3D</td>
+                    <td>Pinch gesture, per panel</td>
+                </tr>
+                <tr>
+                    <td>Reset View</td>
+                    <td>Tap refresh button (also clears electrostatic surfaces)</td>
+                </tr>
+                <tr>
+                    <td>Electrostatic Surface</td>
+                    <td>Tap ⚡ lightning-bolt button</td>
+                </tr>
+                <tr>
+                    <td>Adjust Electrostatics Settings</td>
+                    <td>Tap 🎚 tune icon (appears once ⚡ is on)</td>
+                </tr>
+                <tr>
+                    <td>Cell Validation</td>
+                    <td>Tap a protein or edge → Open Cell Validation</td>
+                </tr>
+                <tr>
+                    <td>PhosphoSite Validation</td>
+                    <td>Tap a phosphorylated node/site → Open PhosphoSite Validation</td>
+                </tr>
+                <tr>
+                    <td>External Evidences</td>
+                    <td>Tap evidence links such as UniProt, STRING, STITCH, or PDB</td>
+                </tr>
+                <tr>
+                    <td>STRING Graph</td>
+                    <td>Tap STRING graph/image view → Pinch to zoom</td>
+                </tr>
+                <tr>
+                    <td>Show P-sites</td>
+                    <td>Tap P-sites button (red spheres appear)</td>
+                </tr>
+            </table>
+        </div>
+
+        <h2>📖 Glossary</h2>
+        <ul>
+            <li><strong>Gene Symbol:</strong> Standard abbreviation for a gene (e.g., TP53, EGFR)</li>
+            <li><strong>UniProt ID:</strong> Unique protein identifier (e.g., P04637)</li>
+            <li><strong>PDB ID:</strong> 3D structure identifier (e.g., 1A1U)</li>
+            <li><strong>Phosphorylation Site:</strong> Amino acid that can be chemically modified</li>
+            <li><strong>Evidence Score:</strong> Confidence level from STRING database (0-100%)</li>
+            <li><strong>Pathway Depth:</strong> Number of steps between proteins</li>
+            <li><strong>Intermediate Protein:</strong> Protein connecting two other proteins</li>
+            <li><strong>Cell Validation:</strong> Cell-context evidence used to judge whether a pathway is plausible in a selected biological setting</li>
+            <li><strong>PhosphoSite Validation:</strong> Residue-level check of phosphorylation sites such as S, T, or Y positions</li>
+            <li><strong>External Evidences:</strong> Clickable evidence links to UniProt, STRING, STITCH, PDB, or other supporting resources</li>
+            <li><strong>STRING Direct Graph:</strong> A direct image-based network view that avoids unreliable in-app rendering of interactive STRING pages</li>
+            <li><strong>Network Type:</strong> The kind of STRING evidence requested — Functional (broad association), Physical (direct binding), or Regulatory (directional activation/inhibition)</li>
+            <li><strong>Regulatory (v12) vs (v12.5):</strong> Two ways to request directional evidence; only v12.5 (STRING's preview API) currently returns real source/target/sign data — see <a href="#network-types">Network Types</a></li>
+            <li><strong>Electrostatic Surface:</strong> A molecular surface colored by electric charge — red (negative), white (neutral), blue (positive)</li>
+            <li><strong>Partial Charge:</strong> The fraction of an elementary charge assigned to an individual atom by a force field, reflecting how electron density is distributed within a molecule</li>
+            <li><strong>CHARMM27:</strong> A widely-used molecular-mechanics force field; the source of the per-atom partial charges used to build the app's electrostatic surfaces</li>
+            <li><strong>United-Atom Charge:</strong> An atom's partial charge with any attached hydrogen's charge folded in — used here because most X-ray-derived PDB structures don't include hydrogen atoms</li>
+            <li><strong>Debye-Hückel Screening:</strong> A distance-based decay model (V = Σqᵢ/r·e⁻ʳ/λ) approximating how dissolved ions weaken a charge's influence over distance; the app uses it to spread each atom's charge across the surface</li>
+        </ul>
+
+        <div class="version-info">
+            <h3 style="color: white; margin-bottom: 8px;">📱 Version Information</h3>
+            <p style="margin: 0;"><strong>Current Version:</strong> 4.0 (Public Release)</p>
+            <p style="margin: 0;"><strong>Last Updated:</strong> September 2026</p>
+            <p style="margin: 0;"><strong>License:</strong> Free for academic use</p>
+            <p style="margin: 0;"><strong>Authors</strong>:</strong> Heebok Lee, Ph.D. and Gihoon Lee, Ph.D.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px; padding: 16px; border-top: 2px solid #e0e0e0;">
+            <p><strong>Thank you for using Protein Pathfinder!</strong></p>
+            <p style="font-size: 13px; color: #666;">For support and updates, please contact the development team.</p>
+        </div>
+    </div>
+</body>
+</html>
